@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple Music Player</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body
+    class="bg-gradient-to-br from-gray-800 to-gray-900 text-white min-h-screen flex items-center justify-center font-sans"
+  >
+    <audio id="audio-player" crossorigin="anonymous" style="display: none;"></audio>
+
+    <div
+      class="bg-white text-gray-900 rounded-3xl shadow-2xl p-12 w-full max-w-md flex flex-col items-center space-y-8">
+      <h1 class="text-3xl font-bold text-center">🎵 Music Player</h1>
+
+      <!-- Album Art Image -->
+      <img
+        id="album-art"
+        src="https://via.placeholder.com/300x300.png?text=Music+Art"
+        alt="Album Art"
+        class="w-72 h-72 rounded-lg shadow-lg object-cover mb-4"
+      />
+
+      <select
+        class="songs-list w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
+      >
+        <option>Select a song</option>
+      </select>
+
+      <div class="controls flex items-center justify-between w-full mt-4 px-4 text-3xl">
+        <button class="prev-button hover:text-pink-500 transition">⏮️</button>
+        <button class="play-button text-pink-500 hover:scale-110 transition">▶️</button>
+        <button class="pause-button text-pink-500 hidden hover:scale-110 transition">⏸️</button>
+        <button class="next-button hover:text-pink-500 transition">⏭️</button>
+      </div>
+
+      <input
+        type="range"
+        id="progress"
+        min="0"
+        max="100"
+        value="0"
+        step="1"
+        class="music-slider w-full mt-4 h-2 accent-pink-500 rounded-lg appearance-none cursor-pointer bg-gray-200"
+      />
+    </div>
+
+    <script src="./script.js"></script>
+  </body>
+</html>

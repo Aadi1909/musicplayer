@@ -41,7 +41,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     audioElement.volume = 1;
     audioElement.muted = false;
 
-    // Populate dropdown with songs
     songs.forEach((song) => {
       const option = document.createElement("option");
       option.value = song;

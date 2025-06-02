@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     "https://cdn.pixabay.com/photo/2023/12/22/16/29/sheet-music-8463988_1280.jpg",
     "https://cdn.pixabay.com/photo/2018/09/26/01/06/piano-3703616_1280.jpg",
     "https://cdn.pixabay.com/photo/2021/09/29/22/59/viola-6668608_1280.jpg",
-    "https://cdn.pixabay.com/photo/2015/05/27/09/02/music-786136_1280.jpg"
+    "https://cdn.pixabay.com/photo/2015/05/27/09/02/music-786136_1280.jpg",
   ];
 
   try {
@@ -26,13 +26,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const albumArt = document.getElementById("album-art");
-    const dropDown = document.querySelector(".songs-list");
+    const dropDown = document.getElementById("songSelect");
     const audioElement = document.querySelector("audio");
     const playButton = document.querySelector(".play-button");
     const pauseButton = document.querySelector(".pause-button");
     const nextButton = document.querySelector(".next-button");
     const prevButton = document.querySelector(".prev-button");
     const slider = document.querySelector(".music-slider");
+    const favIcon = document.getElementById("fav-icon");
 
     const audioContext = new AudioContext();
     const track = audioContext.createMediaElementSource(audioElement);
@@ -62,8 +63,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     //   }
     // }
 
-    let randomImageUrl = musicImages[Math.floor(Math.random() * musicImages.length)];
+    let randomImageUrl =
+      musicImages[Math.floor(Math.random() * musicImages.length)];
     albumArt.src = randomImageUrl;
+
+
+    function handleFileUpload() {
+      // files the user have dropped
+    }
+
 
     async function playSong(index) {
       if (index < 0 || index >= songs.length) return;
@@ -72,7 +80,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       const encodedSong = encodeURIComponent(selectedSong);
       audioElement.src = `http://localhost:3000/Music/${encodedSong}`;
 
-      randomImageUrl = musicImages[Math.floor(Math.random() * musicImages.length)];
+      randomImageUrl =
+        musicImages[Math.floor(Math.random() * musicImages.length)];
       albumArt.src = randomImageUrl;
 
       await audioElement.play();
@@ -128,6 +137,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     slider.addEventListener("input", () => {
       audioElement.currentTime = slider.value;
     });
+
+    // Features
+
+    favIcon.addEventListener("click", () => {
+      if (currentSongIndex !== -1) {
+        if (favIcon.textContent === "favorite_border") {
+          favIcon.textContent = "favorite";
+          favIcon.classList.remove("text-gray-500");
+          favIcon.classList.add("text-red-500");
+        } else {
+          favIcon.textContent = "favorite_border";
+          favIcon.classList.remove("text-red-500");
+          favIcon.classList.add("text-gray-500");
+        }
+      }
+    });
+
   } catch (error) {
     console.error("Failed to fetch songs:", error);
     alert(

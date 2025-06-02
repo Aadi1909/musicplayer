@@ -6,16 +6,12 @@ const fs = require('fs');
 const app = express();
 const PORT = 3000;
 
-// ✅ Enable CORS globally (for API)
 app.use(cors());
-
-// ✅ Serve audio files from /Music with CORS headers
 app.use('/Music', cors(), express.static(path.join(__dirname, 'public/Music')));
 
-// Serve other static assets (e.g. index.html, CSS, etc.)
 app.use(express.static('public'));
 
-// API endpoint to list MP3 files
+
 app.get('/api/songs', (req, res) => {
   const audioDir = path.join(__dirname, './public/Music');
 

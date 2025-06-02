@@ -5,17 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Simple Music Player</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
   </head>
   <body
     class="bg-gradient-to-br from-gray-800 to-gray-900 text-white min-h-screen flex items-center justify-center font-sans"
   >
-    <audio id="audio-player" crossorigin="anonymous" style="display: none;"></audio>
+    <audio
+      id="audio-player"
+      crossorigin="anonymous"
+      style="display: none"
+    ></audio>
 
     <div
-      class="bg-white text-gray-900 rounded-3xl shadow-2xl p-12 w-full max-w-md flex flex-col items-center space-y-8">
+      class="bg-white text-gray-900 rounded-3xl shadow-2xl p-12 w-full max-w-md flex flex-col items-center space-y-8"
+    >
       <h1 class="text-3xl font-bold text-center">🎵 Music Player</h1>
 
-      <!-- Album Art Image -->
       <img
         id="album-art"
         src="https://via.placeholder.com/300x300.png?text=Music+Art"
@@ -23,17 +31,82 @@
         class="w-72 h-72 rounded-lg shadow-lg object-cover mb-4"
       />
 
-      <select
-        class="songs-list w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
-      >
-        <option>Select a song</option>
-      </select>
+      <div class="flex items-center space-x-4">
+        <span
+          id="fav-icon"
+          class="material-icons pr-5 text-gray-400 cursor-pointer transition-colors hover:text-pink-500 duration-200"
+        >
+          favorite_border
+        </span>
+        <span
+          id="shuffle-btn"
+          class="material-icons pl-10 pr-7 text-gray-400 cursor-pointer hover:text-blue-700 transition"
+        >
+          shuffle
+        </span>
 
-      <div class="controls flex items-center justify-between w-full mt-4 px-4 text-3xl">
-        <button class="prev-button hover:text-pink-500 transition">⏮️</button>
-        <button class="play-button text-pink-500 hover:scale-110 transition">▶️</button>
-        <button class="pause-button text-pink-500 hidden hover:scale-110 transition">⏸️</button>
-        <button class="next-button hover:text-pink-500 transition">⏭️</button>
+        <span
+          class="material-icons pl-11 cursor-pointer hover:text-green-500 text-gray-400"
+        >
+          all_inclusive
+        </span>
+      </div>
+
+      <div class="w-full flex justify-center mt-4">
+        <div class="flex items-center space-x-2">
+          <select
+            id="songSelect"
+            class="text-sm px-3 py-2 rounded-md border border-pink-400 focus:ring-2 focus:ring-pink-400 focus:border-pink-400 text-gray-700 shadow-sm"
+            onchange="handleSongSelection(event)"
+          >
+            <option disabled selected class="text-xs text-gray-400">
+              Select a song
+            </option>
+          </select>
+
+          <label
+            for="fileInput"
+            class="cursor-pointer bg-pink-500 hover:bg-pink-600 text-white rounded-md p-2 flex items-center justify-center shadow-md"
+          >
+            <span class="material-icons text-sm">add</span>
+          </label>
+
+          <input
+            type="file"
+            id="fileInput"
+            accept="audio/*"
+            class="hidden"
+            onchange="handleFileUpload(event)"
+          />
+        </div>
+      </div>
+
+      <div
+        class="controls flex items-center justify-between mt-4 px-4 text-3xl"
+      >
+        <button
+          class="material-icons text-pink-500 pl-8 pr-8 text-6xl hover:scale-110 transition prev-button"
+        >
+          chevron_left
+        </button>
+
+        <button
+          class="material-icons text-pink-500 hidden text-6xl hover:scale-110 transition play-button"
+        >
+          play_arrow
+        </button>
+
+        <button
+          class="material-icons text-pink-500 pl-8 pr-8 text-6xl hover:scale-110 transition pause-button"
+        >
+          pause
+        </button>
+
+        <button
+          class="material-icons next-button pl-8 pr-8 text-6xl text-pink-500 hover:scale-110 hover:text-red-500 transition next-button"
+        >
+          chevron_right
+        </button>
       </div>
 
       <input

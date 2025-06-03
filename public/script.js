@@ -34,10 +34,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     const prevButton = document.querySelector(".prev-button");
     const slider = document.querySelector(".music-slider");
     const favIcon = document.getElementById("fav-icon");
+    const shuffleButton = document.getElementById("shuffle-btn");
+    const repeatButton = document.getElementById("repeat");
 
     const audioContext = new AudioContext();
     const track = audioContext.createMediaElementSource(audioElement);
     track.connect(audioContext.destination);
+
+    let isShuffleOn = 0;
+    let currentSongIndex = -1;
+    let repeatOn = 0;
 
     audioElement.volume = 1;
     audioElement.muted = false;
@@ -48,8 +54,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       option.textContent = song;
       dropDown.appendChild(option);
     });
-
-    let currentSongIndex = -1;
 
     // async function fetchPicsumImages() {
     //   try {
@@ -67,11 +71,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       musicImages[Math.floor(Math.random() * musicImages.length)];
     albumArt.src = randomImageUrl;
 
-
     function handleFileUpload() {
       // files the user have dropped
     }
-
 
     async function playSong(index) {
       if (index < 0 || index >= songs.length) return;
@@ -117,12 +119,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     nextButton.addEventListener("click", async () => {
-      const nextIndex = (currentSongIndex + 1) % songs.length;
+      let nextIndex;
+      if (isShuffleOn) {
+        nextIndex = Math.floor(Math.random() * songs.length);
+      } else {
+        nextIndex = (currentSongIndex + 1) % songs.length;
+      }
       await playSong(nextIndex);
     });
 
     prevButton.addEventListener("click", async () => {
-      const prevIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+      let prevIndex;
+      if (isShuffleOn) {
+        prevIndex = Math.floor(Math.random() * songs.length);
+      } else {
+        prevIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+      }
       await playSong(prevIndex);
     });
 
@@ -132,6 +144,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     audioElement.addEventListener("timeupdate", () => {
       slider.value = Math.floor(audioElement.currentTime);
+    });
+
+    audioElement.addEventListener("ended", () => {
+      if (repeatOn > 0) {
+        repeatOn--;
+        if (repeatButton.textContent === "repeat_one_on") {
+          repeatButton.textContent = "repeat"
+          repeatButton.classList.remove("text-green-500")
+        }
+        playSong(currentSongIndex);
+      } else {
+        currentSongIndex = (currentSongIndex + 1) % songs.length;
+        playSong(currentSongIndex);
+      }
     });
 
     slider.addEventListener("input", () => {
@@ -154,6 +180,29 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
 
+    // shuffle button
+    shuffleButton.addEventListener("click", () => {
+      isShuffleOn = !isShuffleOn;
+      if (isShuffleOn) {
+        shuffleButton.classList.remove("text-gray-400");
+        shuffleButton.classList.add("text-blue-700");
+      } else {
+        shuffleButton.classList.remove("text-blue-700");
+        shuffleButton.classList.add("text-gray-400");
+      }
+    });
+
+    repeatButton.addEventListener("click", () => {
+      if (!repeatOn) {
+        repeatOn = 1
+        repeatButton.textContent = "repeat_one_on";
+        repeatButton.classList.add("text-green-500");
+      } else {
+        repeatOn = 0
+        repeatButton.textContent = "repeat";
+        repeatButton.classList.remove("text-green-500");
+      }
+    });
   } catch (error) {
     console.error("Failed to fetch songs:", error);
     alert(

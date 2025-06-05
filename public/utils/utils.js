@@ -16,12 +16,13 @@ export const getElements = (document) => {
 
 export const addEventListeners = (
   elements,
-  isShuffleOn,
-  currentSongIndex,
+  state,
   playSong,
-  repeatOn = 0,
   songs,
-  audioContext
+  audioContext,
+  likedSongMapping,
+  toogleLikedSong,
+  updateFavIcon
 ) => {
   const {
     audioElement,
@@ -44,16 +45,16 @@ export const addEventListeners = (
   });
 
   audioElement.addEventListener("ended", () => {
-    if (repeatOn > 0) {
-      repeatOn--;
+    if (state.repeatOn > 0) {
+      state.repeatOn--;
       if (repeatButton.textContent === "repeat_one_on") {
         repeatButton.textContent = "repeat";
         repeatButton.classList.remove("text-green-500");
       }
-      playSong(currentSongIndex);
+      playSong(state.currentSongIndex);
     } else {
-      currentSongIndex = (currentSongIndex + 1) % songs.length;
-      playSong(currentSongIndex);
+      state.currentSongIndex = (state.currentSongIndex + 1) % songs.length;
+      playSong(state.currentSongIndex);
     }
   });
 
@@ -85,20 +86,20 @@ export const addEventListeners = (
 
   nextButton.addEventListener("click", async () => {
     let nextIndex;
-    if (isShuffleOn) {
+    if (state.isShuffleOn) {
       nextIndex = Math.floor(Math.random() * songs.length);
     } else {
-      nextIndex = (currentSongIndex + 1) % songs.length;
+      nextIndex = (state.currentSongIndex + 1) % songs.length;
     }
     await playSong(nextIndex);
   });
 
   prevButton.addEventListener("click", async () => {
     let prevIndex;
-    if (isShuffleOn) {
+    if (state.isShuffleOn) {
       prevIndex = Math.floor(Math.random() * songs.length);
     } else {
-      prevIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+      prevIndex = (state.currentSongIndex - 1 + songs.length) % songs.length;
     }
     await playSong(prevIndex);
   });
@@ -107,22 +108,16 @@ export const addEventListeners = (
     audioElement.currentTime = slider.value;
   });
   favIcon.addEventListener("click", () => {
-    if (currentSongIndex !== -1) {
-      if (favIcon.textContent === "favorite_border") {
-        favIcon.textContent = "favorite";
-        favIcon.classList.remove("text-gray-500");
-        favIcon.classList.add("text-red-500");
-      } else {
-        favIcon.textContent = "favorite_border";
-        favIcon.classList.remove("text-red-500");
-        favIcon.classList.add("text-gray-500");
-      }
+    if (state.currentSongIndex !== -1) {
+      const selectedSong = songs[state.currentSongIndex];
+      toogleLikedSong(state.currentSongIndex);
+      updateFavIcon(selectedSong, favIcon);
     }
   });
 
   shuffleButton.addEventListener("click", () => {
-    isShuffleOn = !isShuffleOn;
-    if (isShuffleOn) {
+    state.isShuffleOn = !state.isShuffleOn;
+    if (state.isShuffleOn) {
       shuffleButton.classList.remove("text-gray-400");
       shuffleButton.classList.add("text-blue-700");
     } else {
@@ -132,12 +127,12 @@ export const addEventListeners = (
   });
 
   repeatButton.addEventListener("click", () => {
-    if (!repeatOn) {
-      repeatOn = 1;
+    if (!state.repeatOn) {
+      state.repeatOn = 1;
       repeatButton.textContent = "repeat_one_on";
       repeatButton.classList.add("text-green-500");
     } else {
-      repeatOn = 0;
+      state.repeatOn = 0;
       repeatButton.textContent = "repeat";
       repeatButton.classList.remove("text-green-500");
     }

@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    const API_KEY = ypur-api-key;
+    const API_KEY = your-api-key;
     const IMAGE_API = `https://pixabay.com/api/?key=${API_KEY}&q=music&per_page=200`;
 
     let musicImages = [];

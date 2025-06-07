@@ -6,11 +6,13 @@ export const getElements = (document) => {
     pauseButton: document.getElementById("pause-button"),
     nextButton: document.getElementById("next-button"),
     prevButton: document.getElementById("prev-button"),
-    slider: document.getElementById("progress"),
+    progressBar: document.getElementById("progress-bar"),
     albumArt: document.getElementById("album-art"),
     favIcon: document.getElementById("fav-icon"),
     shuffleButton: document.getElementById("shuffle-btn"),
     repeatButton: document.getElementById("repeat"),
+    currentTimeEl: document.getElementById("current-time"),
+    totalTimeEl: document.getElementById("total-time"),
   };
 };
 
@@ -21,8 +23,9 @@ export const addEventListeners = (
   songs,
   audioContext,
   likedSongMapping,
-  toogleLikedSong,
-  updateFavIcon
+  toggleLikedSong,
+  updateFavIcon,
+  formatTime
 ) => {
   const {
     audioElement,
@@ -31,48 +34,46 @@ export const addEventListeners = (
     pauseButton,
     nextButton,
     prevButton,
-    slider,
+    progressBar,
     favIcon,
     shuffleButton,
     repeatButton,
+    currentTimeEl,
+    totalTimeEl,
   } = elements;
+
   audioElement.addEventListener("loadedmetadata", () => {
-    slider.max = Math.floor(audioElement.duration);
-  });
-  let selectedSong;
-  audioElement.addEventListener("timeupdate", () => {
-    slider.value = Math.floor(audioElement.currentTime);
+    progressBar.max = 100;
+    progressBar.disabled = false;
+    totalTimeEl.textContent = formatTime(audioElement.duration);
   });
 
-  audioElement.addEventListener("ended", () => {
-    if (state.repeatOn > 0) {
-      state.repeatOn--;
-      if (repeatButton.textContent === "repeat_one_on") {
-        repeatButton.textContent = "repeat";
-        repeatButton.classList.remove("text-green-500");
-      }
-      playSong(state.currentSongIndex);
-    } else {
-      state.currentSongIndex = (state.currentSongIndex + 1) % songs.length;
-      playSong(state.currentSongIndex);
+  audioElement.addEventListener("timeupdate", () => {
+    if (!isNaN(audioElement.duration)) {
+      const progress = (audioElement.currentTime / audioElement.duration) * 100;
+      progressBar.value = progress;
+      currentTimeEl.textContent = formatTime(audioElement.currentTime);
     }
   });
 
-  dropDown.addEventListener("change", async (event) => {
-    selectedSong = event.target.value;
+  progressBar.addEventListener("input", () => {
+    if (!isNaN(audioElement.duration)) {
+      const newTime = (progressBar.value / 100) * audioElement.duration;
+      audioElement.currentTime = newTime;
+    }
+  });
+
+  dropDown.addEventListener("change", async (e) => {
+    const selectedSong = e.target.value;
     const index = songs.findIndex((song) => song === selectedSong);
     if (index !== -1) {
-      if (audioContext.state === "suspended") {
-        await audioContext.resume();
-      }
+      if (audioContext.state === "suspended") await audioContext.resume();
       await playSong(index);
     }
   });
 
   playButton.addEventListener("click", async () => {
-    if (audioContext.state === "suspended" || selectedSong) {
-      await audioContext.resume();
-    }
+    if (audioContext.state === "suspended") await audioContext.resume();
     await audioElement.play();
     playButton.classList.add("hidden");
     pauseButton.classList.remove("hidden");
@@ -85,72 +86,65 @@ export const addEventListeners = (
   });
 
   nextButton.addEventListener("click", async () => {
-    let nextIndex;
-    if (state.isShuffleOn) {
-      nextIndex = Math.floor(Math.random() * songs.length);
-    } else {
-      nextIndex = (state.currentSongIndex + 1) % songs.length;
-    }
+    let nextIndex = state.isShuffleOn
+      ? Math.floor(Math.random() * songs.length)
+      : (state.currentSongIndex + 1) % songs.length;
     await playSong(nextIndex);
   });
 
   prevButton.addEventListener("click", async () => {
-    let prevIndex;
-    if (state.isShuffleOn) {
-      prevIndex = Math.floor(Math.random() * songs.length);
-    } else {
-      prevIndex = (state.currentSongIndex - 1 + songs.length) % songs.length;
-    }
+    let prevIndex = state.isShuffleOn
+      ? Math.floor(Math.random() * songs.length)
+      : (state.currentSongIndex - 1 + songs.length) % songs.length;
     await playSong(prevIndex);
   });
 
-  slider.addEventListener("input", () => {
-    audioElement.currentTime = slider.value;
-  });
   favIcon.addEventListener("click", () => {
-    if (state.currentSongIndex !== -1) {
-      const selectedSong = songs[state.currentSongIndex];
-      toogleLikedSong(state.currentSongIndex);
-      updateFavIcon(selectedSong, favIcon);
+    const index = state.currentSongIndex;
+    if (index !== -1) {
+      toggleLikedSong(index);
+      updateFavIcon(songs[index], favIcon);
     }
   });
 
   shuffleButton.addEventListener("click", () => {
     state.isShuffleOn = !state.isShuffleOn;
-    if (state.isShuffleOn) {
-      shuffleButton.classList.remove("text-gray-400");
-      shuffleButton.classList.add("text-blue-700");
-    } else {
-      shuffleButton.classList.remove("text-blue-700");
-      shuffleButton.classList.add("text-gray-400");
-    }
+    shuffleButton.classList.toggle("text-blue-700", state.isShuffleOn);
+    shuffleButton.classList.toggle("text-gray-400", !state.isShuffleOn);
   });
 
   repeatButton.addEventListener("click", () => {
-    if (!state.repeatOn) {
+    if (state.repeatOn === 0) {
       state.repeatOn = 1;
-      repeatButton.textContent = "repeat_one_on";
+      state.repeatOnce = true;
+      repeatButton.textContent = "repeat_one";
       repeatButton.classList.add("text-green-500");
+      repeatButton.classList.remove("text-yellow-400");
+    } else if (state.repeatOn === 1) {
+      state.repeatOn = 2;
+      state.repeatOnce = false;
+      repeatButton.textContent = "loop";
+      repeatButton.classList.remove("text-green-500");
+      repeatButton.classList.add("text-yellow-400");
     } else {
       state.repeatOn = 0;
+      state.repeatOnce = false;
       repeatButton.textContent = "repeat";
-      repeatButton.classList.remove("text-green-500");
+      repeatButton.classList.remove("text-green-500", "text-yellow-400");
+    }
+  });
+
+  audioElement.addEventListener("ended", () => {
+    if (state.repeatOn === 1 && state.repeatOnce) {
+      state.repeatOnce = false;
+      playSong(state.currentSongIndex);
+    } else if (state.repeatOn === 2) {
+      playSong(state.currentSongIndex);
+    } else {
+      const nextIndex = state.isShuffleOn
+        ? Math.floor(Math.random() * songs.length)
+        : (state.currentSongIndex + 1) % songs.length;
+      playSong(nextIndex);
     }
   });
 };
-
-export const musicImages = [
-  "https://cdn.pixabay.com/photo/2017/09/28/14/58/piano-2795807_1280.jpg",
-  "https://cdn.pixabay.com/photo/2016/11/29/03/42/mic-1867121_1280.jpg",
-  "https://cdn.pixabay.com/photo/2023/04/01/01/28/piano-7891138_1280.jpg",
-  "https://cdn.pixabay.com/photo/2015/06/08/08/30/instruments-801271_1280.jpg",
-  "https://cdn.pixabay.com/photo/2024/09/17/23/23/studio-9054709_1280.jpg",
-  "https://cdn.pixabay.com/photo/2024/02/07/18/42/music-8559592_1280.jpg",
-  "https://cdn.pixabay.com/photo/2023/10/24/21/15/nature-8339115_1280.jpg",
-  "https://cdn.pixabay.com/photo/2015/04/29/09/33/drums-745077_1280.jpg",
-  "https://cdn.pixabay.com/photo/2016/11/29/12/39/recording-studio-1869560_1280.jpg",
-  "https://cdn.pixabay.com/photo/2023/12/22/16/29/sheet-music-8463988_1280.jpg",
-  "https://cdn.pixabay.com/photo/2018/09/26/01/06/piano-3703616_1280.jpg",
-  "https://cdn.pixabay.com/photo/2021/09/29/22/59/viola-6668608_1280.jpg",
-  "https://cdn.pixabay.com/photo/2015/05/27/09/02/music-786136_1280.jpg",
-];

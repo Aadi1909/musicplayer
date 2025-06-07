@@ -1,6 +1,8 @@
 # Simple Music Player
 
-A modern, user-friendly web-based music player built with Node.js, Express, and Tailwind CSS. This app lets you play your local MP3 files in a beautiful, responsive interface with interactive features like song liking, repeat-once, shuffle, and dynamic album art.
+![Music Player Preview](./preview.png)
+
+A modern, user-friendly web-based music player built with Node.js, Express, and Tailwind CSS. This app lets you play your local MP3 files in a beautiful, responsive interface with interactive features like song liking, repeat-once, shuffle, and dynamic album art fetched from Pixabay API.
 
 ---
 
@@ -19,16 +21,17 @@ A modern, user-friendly web-based music player built with Node.js, Express, and 
   - Mark songs as favorites with a single click on the heart icon.
   - Favorites are visually highlighted for quick access.
 
-- **🔁 Repeat-Once Mode:**
-  - Replay the current song once with the repeat icon.
-  - Visual feedback ensures you know when repeat-once is active.
+- **🔁 Repeat Modes:**
+  - Replay the current song once with the repeat-one mode.
+  - Enable continuous looping for the current song.
+  - Visual feedback ensures you know when repeat modes are active.
 
 - **🔀 Shuffle for Surprise:**
   - Enable shuffle mode to enjoy songs in a random order.
   - The shuffle icon changes color to indicate activation.
 
 - **🖼️ Dynamic Album Art:**
-  - Each song is paired with a random, high-quality album art image.
+  - Each song is paired with a random, high-quality album art image fetched from Pixabay API.
   - Adds a visually stunning touch to your listening experience.
 
 - **📱 Responsive Design:**
@@ -83,6 +86,7 @@ package.json        # Project metadata and dependencies
 ## ⚙️ How It Works
 - The Express server serves static files from `public/` and exposes an API endpoint `/api/songs` to list available MP3 files.
 - The frontend fetches the song list and allows you to play them using the built-in HTML5 `<audio>` element.
+- Album art images are dynamically fetched from Pixabay API.
 - All controls and features are handled client-side for a smooth, interactive experience.
 
 ---

@@ -1,84 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Music Player</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+  </head>
+  <body
+    class="bg-gray-900 flex justify-center items-center min-h-screen text-white"
+  >
+    <div
+      class="bg-gray-800 text-white p-7 rounded-3xl shadow-2xl w-full max-w-sm space-y-6"
+    >
+      <h1
+        class="text-3xl font-bold text-center flex items-center justify-center gap-2"
+      >
+        <span class="material-icons text-purple-400 text-4xl">music_note</span>
+        Music Player
+      </h1>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Simple Music Player</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-</head>
+      <img
+        id="album-art"
+        class="rounded-xl w-full h-64 object-cover border border-gray-600"
+        src=""
+        alt="Album Art"
+      />
 
-<body
-  class="bg-gradient-to-br from-gray-800 to-gray-900 text-white min-h-screen flex items-center justify-center font-sans">
-  <audio id="audio-player" crossorigin="anonymous" style="display: none"></audio>
-
-  <div class="bg-white text-gray-900 rounded-3xl shadow-2xl p-12 w-full max-w-md flex flex-col items-center space-y-8">
-    <h1 class="text-3xl font-bold text-center">🎵 Music Player</h1>
-
-    <img id="album-art" src="https://via.placeholder.com/300x300.png?text=Music+Art" alt="Album Art"
-      class="w-72 h-72 rounded-lg shadow-lg object-cover mb-4" />
-
-    <div class="flex items-center space-x-4">
-      <span id="fav-icon"
-        class="material-icons pr-5 text-gray-400 text-4xl cursor-pointer transition-colors hover:text-pink-500 duration-100">
-        favorite_border
-      </span>
-      <span id="shuffle-btn"
-        class="material-icons pl-10 pr-7 text-4xl text-gray-400 cursor-pointer hover:text-blue-700 transition">
-        shuffle
-      </span>
-
-      <span id="repeat" class="material-icons pl-11 text-4xl cursor-pointer hover:text-green-500 text-gray-400">
-        repeat
-      </span>
-    </div>
-
-    <div class="w-full flex justify-center mt-4">
-      <div class="flex items-center space-x-2">
-        <select id="songSelect"
-          class="text-sm px-3 py-2 rounded-md border border-pink-400 focus:ring-2 focus:ring-pink-400 focus:border-pink-400 text-gray-700 shadow-sm">
-          <option disabled selected class="text-xs text-gray-400">
-            Select a song
-          </option>
-        </select>
-
-        <label for="fileInput"
-          class="cursor-pointer bg-pink-500 hover:bg-pink-600 text-white rounded-md p-2 flex items-center justify-center shadow-md">
-          <span class="material-icons text-sm">add</span>
-        </label>
-
-        <input type="file" id="fileInput" accept="audio/*" class="hidden" onchange="handleFileUpload(event)" />
+      <div class="flex justify-center space-x-6 text-3xl">
+        <span
+          id="fav-icon"
+          class="material-icons cursor-pointer text-gray-400 hover:text-red-500"
+          >favorite_border</span
+        >
+        <span
+          id="shuffle-btn"
+          class="material-icons cursor-pointer text-gray-400 hover:text-blue-500"
+          >shuffle</span
+        >
+        <span
+          id="repeat"
+          class="material-icons cursor-pointer text-gray-400 hover:text-green-500"
+          >repeat</span
+        >
       </div>
+
+      <div class="flex items-center space-x-3">
+        <select
+          id="songSelect"
+          class="flex-1 px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded-md text-sm focus:outline-none"
+        >
+          <option disabled selected>Select a song</option>
+        </select>
+        <button
+          id="upload-button"
+          title="Upload Song"
+          class="material-icons text-gray-400 hover:text-white text-2xl"
+        >
+          upload
+        </button>
+        <input type="file" id="file-upload" accept="audio/*" class="hidden" />
+      </div>
+
+      <div class="flex justify-center space-x-6 text-4xl text-pink-500">
+        <button id="prev-button" class="material-icons hover:text-pink-300">
+          skip_previous
+        </button>
+        <button id="play-button" class="material-icons hover:text-green-400">
+          play_arrow
+        </button>
+        <button
+          id="pause-button"
+          class="material-icons hidden hover:text-yellow-400"
+        >
+          pause
+        </button>
+        <button id="next-button" class="material-icons hover:text-pink-300">
+          skip_next
+        </button>
+      </div>
+
+      <div class="flex items-center space-x-3 text-sm">
+        <span id="current-time">0:00</span>
+        <input
+          type="range"
+          id="progress-bar"
+          class="flex-1 accent-pink-500"
+          value="0"
+          disabled
+        />
+        <span id="total-time">0:00</span>
+      </div>
+
+      <audio id="audio-player" crossorigin="anonymous"></audio>
     </div>
 
-    <div class="controls flex items-center justify-between mt-4 px-4 text-3xl">
-      <button id="prev-button"
-        class="material-icons text-pink-500 pl-8 pr-8 text-6xl hover:scale-110 transition prev-button">
-        chevron_left
-      </button>
-
-      <button id="play-button"
-        class="material-icons text-pink-500 hidden text-6xl hover:scale-110 transition play-button">
-        play_arrow
-      </button>
-
-      <button id="pause-button"
-        class="material-icons text-pink-500 pl-8 pr-8 text-6xl hover:scale-110 transition pause-button">
-        pause
-      </button>
-
-      <button id="next-button"
-        class="material-icons next-button pl-8 pr-8 text-6xl text-pink-500 hover:scale-110 hover:text-red-500 transition next-button">
-        chevron_right
-      </button>
-    </div>
-
-    <input type="range" id="progress" min="0" max="100" value="0" step="1"
-      class="music-slider w-full mt-4 h-2 accent-pink-500 rounded-lg appearance-none cursor-pointer bg-gray-200" />
-  </div>
-
-  <script src="./script.js" type="module"></script>
-</body>
-
+    <script type="module" src="./script.js"></script>
+  </body>
 </html>

@@ -13,6 +13,8 @@ export const getElements = (document) => {
     repeatButton: document.getElementById("repeat"),
     currentTimeEl: document.getElementById("current-time"),
     totalTimeEl: document.getElementById("total-time"),
+    uploadButton: document.getElementById("upload-button"),
+    fileUpload: document.getElementById("file-upload"),
   };
 };
 
@@ -25,7 +27,9 @@ export const addEventListeners = (
   likedSongMapping,
   toggleLikedSong,
   updateFavIcon,
-  formatTime
+  formatTime,
+  uploadButton,
+  fileUpload
 ) => {
   const {
     audioElement,
@@ -65,7 +69,7 @@ export const addEventListeners = (
 
   dropDown.addEventListener("change", async (e) => {
     const selectedSong = e.target.value;
-    const index = songs.findIndex((song) => song === selectedSong);
+    const index = songs.findIndex((song) => song.url === selectedSong);
     if (index !== -1) {
       if (audioContext.state === "suspended") await audioContext.resume();
       await playSong(index);
@@ -146,5 +150,32 @@ export const addEventListeners = (
         : (state.currentSongIndex + 1) % songs.length;
       playSong(nextIndex);
     }
+  });
+
+  uploadButton.addEventListener("click", function () {
+    fileUpload.click();
+  });
+
+  fileUpload.addEventListener("change", function () {
+    const file = this.files[0];
+    const formData = new FormData();
+    formData.append("audio", file);
+    fetch("http://localhost:3000/api/upload", {
+      method: "POST",
+      body: formData,
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        if (data.success) {
+          alert("Upload Successful");
+          
+        } else {
+          alert("Upload failed!");
+        }
+      })
+      .catch((err) => {
+        console.error("Upload error:", err);
+      });
   });
 };

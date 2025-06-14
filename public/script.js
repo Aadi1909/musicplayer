@@ -6,12 +6,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
     const songs = await response.json();
 
-    if (songs.length === 0) {
-      alert("No songs found.");
-      return;
-    }
 
-    const API_KEY = your-api-key;
+    const API_KEY = "your-api-key";
     const IMAGE_API = `https://pixabay.com/api/?key=${API_KEY}&q=music&per_page=200`;
 
     let musicImages = [];
@@ -20,7 +16,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function loadImages() {
       const res = await fetch(IMAGE_API);
       const json = await res.json();
-      musicImages = json.hits.map(hit => hit.webformatURL);
+      musicImages = json.hits.map((hit) => hit.webformatURL);
       usedImageIndexes.clear();
     }
 
@@ -39,25 +35,39 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
 
     const elements = getElements(document);
-    const { audioElement, dropDown, albumArt, favIcon, playButton, pauseButton } = elements;
+    const {
+      audioElement,
+      dropDown,
+      albumArt,
+      favIcon,
+      playButton,
+      pauseButton,
+      uploadButton,
+      fileUpload,
+    } = elements;
 
     const likedSongMapping = new Map();
     const audioContext = new AudioContext();
     const track = audioContext.createMediaElementSource(audioElement);
     track.connect(audioContext.destination);
 
-    let state = { currentSongIndex: -1, isShuffleOn: 0, repeatOn: 0, repeatOnce: false };
-    songs.forEach(song => likedSongMapping.set(song, false));
-    songs.forEach(song => {
+    let state = {
+      currentSongIndex: -1,
+      isShuffleOn: 0,
+      repeatOn: 0,
+      repeatOnce: false,
+    };
+    songs.forEach((song) => likedSongMapping.set(song, false));
+    songs.forEach((song) => {
       const option = document.createElement("option");
-      option.value = song;
-      option.textContent = song;
+      option.value = song.url;
+      option.textContent = song.name;
       dropDown.appendChild(option);
     });
 
     albumArt.src = await getRandomImageUrl();
 
-    const formatTime = seconds => {
+    const formatTime = (seconds) => {
       const mins = Math.floor(seconds / 60);
       const secs = Math.floor(seconds % 60);
       return `${mins}:${secs.toString().padStart(2, "0")}`;
@@ -70,7 +80,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       icon.classList.toggle("text-gray-500", !liked);
     };
 
-    const toggleLikedSong = index => {
+    const toggleLikedSong = (index) => {
       const song = songs[index];
       likedSongMapping.set(song, !likedSongMapping.get(song));
     };
@@ -79,13 +89,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (index < 0 || index >= songs.length) return;
       state.currentSongIndex = index;
       const selectedSong = songs[index];
-      audioElement.src = `http://localhost:3000/Music/${encodeURIComponent(selectedSong)}`;
+      console.log(selectedSong);
+      audioElement.src = selectedSong.url;
       albumArt.src = await getRandomImageUrl();
       updateFavIcon(selectedSong, favIcon);
       await audioElement.play();
       playButton.classList.add("hidden");
       pauseButton.classList.remove("hidden");
-      dropDown.value = selectedSong;
+      dropDown.value = selectedSong.url;
     }
 
     addEventListeners(
@@ -97,7 +108,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       likedSongMapping,
       toggleLikedSong,
       updateFavIcon,
-      formatTime
+      formatTime,
+      uploadButton,
+      fileUpload
     );
   } catch (err) {
     console.error("Load Error:", err);

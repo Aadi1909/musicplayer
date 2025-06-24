@@ -15,8 +15,18 @@ export const getElements = (document) => {
     totalTimeEl: document.getElementById("total-time"),
     uploadButton: document.getElementById("upload-button"),
     fileUpload: document.getElementById("file-upload"),
+    playlistPage: document.getElementById("playlist-page"),
+    backIcon: document.getElementById("back-icon"),
+    musicPage: document.getElementById("music-page"),
+    songList: document.getElementById("song-lists"),
+    songContainer: document.getElementById("songs-container"),
+    themeToggle: document.getElementById("theme-toggle"),
+    visualizer: document.getElementById("visualizer"),
+    playlist: document.getElementById("playlist"),
+    backToPlayer: document.getElementById("back-to-player"),
   };
 };
+
 
 export const addEventListeners = (
   elements,
@@ -27,9 +37,7 @@ export const addEventListeners = (
   likedSongMapping,
   toggleLikedSong,
   updateFavIcon,
-  formatTime,
-  uploadButton,
-  fileUpload
+  formatTime
 ) => {
   const {
     audioElement,
@@ -44,6 +52,14 @@ export const addEventListeners = (
     repeatButton,
     currentTimeEl,
     totalTimeEl,
+    uploadButton,
+    fileUpload,
+    playlistPage,
+    backIcon,
+    musicPage,
+    songList,
+    songContainer,
+    backToPlayer,
   } = elements;
 
   audioElement.addEventListener("loadedmetadata", () => {
@@ -69,7 +85,7 @@ export const addEventListeners = (
 
   dropDown.addEventListener("change", async (e) => {
     const selectedSong = e.target.value;
-    const index = songs.findIndex((song) => song.url === selectedSong);
+    const index = songs.findIndex((song) => song.url === selectedSong || song === selectedSong);
     if (index !== -1) {
       if (audioContext.state === "suspended") await audioContext.resume();
       await playSong(index);
@@ -90,14 +106,14 @@ export const addEventListeners = (
   });
 
   nextButton.addEventListener("click", async () => {
-    let nextIndex = state.isShuffleOn
+    const nextIndex = state.isShuffleOn
       ? Math.floor(Math.random() * songs.length)
       : (state.currentSongIndex + 1) % songs.length;
     await playSong(nextIndex);
   });
 
   prevButton.addEventListener("click", async () => {
-    let prevIndex = state.isShuffleOn
+    const prevIndex = state.isShuffleOn
       ? Math.floor(Math.random() * songs.length)
       : (state.currentSongIndex - 1 + songs.length) % songs.length;
     await playSong(prevIndex);
@@ -152,14 +168,45 @@ export const addEventListeners = (
     }
   });
 
+  backIcon.addEventListener("click", function () {
+    playlistPage.classList.remove("hidden");
+    musicPage.classList.add("hidden");
+
+    songContainer.innerHTML = ""; // Prevent duplicate list
+    songs.forEach((song) => {
+      const li = document.createElement("li");
+      li.className = `
+        flex items-center gap-3 p-3 
+        bg-white text-gray-800 
+        rounded-xl shadow-sm 
+        hover:bg-gray-100 
+        transition cursor-pointer
+        w-full
+      `;
+      li.innerHTML = `
+        <span class="text-purple-500 text-lg">🎵</span>
+        <span class="text-sm font-semibold truncate">${song.name}</span>
+      `;
+      songContainer.appendChild(li);
+    });
+  });
+
+  backToPlayer.addEventListener("click", function() {
+    playlistPage.classList.add("hidden");
+    musicPage.classList.remove("hidden");
+  });
+
   uploadButton.addEventListener("click", function () {
     fileUpload.click();
   });
 
   fileUpload.addEventListener("change", function () {
     const file = this.files[0];
+    if (!file) return;
+
     const formData = new FormData();
     formData.append("audio", file);
+
     fetch("http://localhost:3000/api/upload", {
       method: "POST",
       body: formData,
@@ -169,7 +216,6 @@ export const addEventListeners = (
         console.log(data);
         if (data.success) {
           alert("Upload Successful");
-          
         } else {
           alert("Upload failed!");
         }

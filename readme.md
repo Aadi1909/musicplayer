@@ -41,6 +41,12 @@ A modern, user-friendly web-based music player built with Node.js, Express, Tail
 - **📱 Responsive Design:**
   - Built with Tailwind CSS for a sleek, modern look that adapts to any device.
 
+- **🎨 Theme Toggle:**
+  - Switch between light and dark modes for a personalized experience.
+
+- **🎵 Visualizer:**
+  - Enjoy a real-time audio visualizer for an immersive music experience.
+
 ---
 
 ## 🚀 Getting Started
@@ -118,6 +124,8 @@ package.json        # Project metadata and dependencies
 - **Playlist Management:**
   - Create, edit, and save playlists for custom listening experiences.
   - A dedicated page for listing all playlists and songs, making navigation and organization easier.
+- **Play Liked Songs Only:**
+  - Filter and play only the songs marked as favorites.
 - **Persistent Favorites:**
   - Save your liked songs and playlists across sessions (local storage or backend support).
 - **Improved Mobile Experience:**

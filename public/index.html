@@ -9,16 +9,57 @@
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
     />
+    <style>
+      .visualizer-container {
+        height: 60px;
+        width: 100%;
+        margin-top: 10px;
+      }
+      .theme-toggle {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+      }
+      .playlist-container {
+        max-height: 200px;
+        overflow-y: auto;
+      }
+      .playlist-item {
+        transition: all 0.2s ease;
+      }
+      .playlist-item:hover {
+        transform: translateX(5px);
+      }
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      .playing {
+        animation: pulse 2s infinite;
+      }
+    </style>
   </head>
+
   <body
     class="bg-gray-900 flex justify-center items-center min-h-screen text-white"
   >
-    <div
-      class="bg-gray-800 text-white p-7 rounded-3xl shadow-2xl w-full max-w-sm space-y-6"
+    <!-- Music Player Page -->
+    <div class="bg-gray-800 text-white p-7 rounded-3xl shadow-2xl w-full max-w-md space-y-6"
+      id="music-page"
     >
       <h1
         class="text-3xl font-bold text-center flex items-center justify-center gap-2"
       >
+        <span class="material-icons pl-1 pr-5 cursor-pointer" id="back-icon">
+          arrow_back_ios
+        </span>
         <span class="material-icons text-purple-400 text-4xl">music_note</span>
         Music Player
       </h1>
@@ -46,6 +87,15 @@
           class="material-icons cursor-pointer text-gray-400 hover:text-green-500"
           >repeat</span
         >
+        <span
+          id="theme-toggle"
+          class="material-icons cursor-pointer text-gray-400 hover:text-purple-500"
+          >dark_mode</span
+        >
+      </div>
+
+      <div class="visualizer-container">
+        <canvas id="visualizer" class="w-full h-full rounded-lg"></canvas>
       </div>
 
       <div class="flex items-center space-x-3">
@@ -96,6 +146,66 @@
       </div>
 
       <audio id="audio-player" crossorigin="anonymous"></audio>
+
+      <div class="mt-6 border-t border-gray-700 pt-4">
+        <h3 class="text-lg font-semibold mb-2 flex items-center">
+          <span class="material-icons mr-2 text-purple-400">queue_music</span>
+          Playlist
+        </h3>
+        <div id="playlist" class="playlist-container cursor-pointer"></div>
+      </div>
+    </div>
+
+    <!-- Playlist Page -->
+    <div
+      id="playlist-page"
+      class="hidden min-h-screen w-full flex items-center justify-center bg-gray-900 text-white"
+    >
+      <div
+        class="w-full max-w-md p-6 bg-gray-800 rounded-2xl shadow-lg h-[90vh] flex flex-col justify-between"
+      >
+        <!-- Playlist Header -->
+        <div>
+          <div class="flex justify-between items-center mb-4">
+            <h2
+              class="text-xl font-semibold text-purple-400 flex items-center gap-2"
+            >
+              <span class="material-icons text-purple-300">queue_music</span>
+              Your Playlists
+            </h2>
+            <button
+              id="back-to-player"
+              class="text-sm text-blue-400 hover:underline"
+            >
+              ← Back
+            </button>
+          </div>
+
+          <!-- 🎵 Playlist List -->
+          <div
+            id="playlist-content"
+            class="space-y-3 overflow-y-auto max-h-[60vh] p-1"
+          >
+            <!-- Songs dynamically injected here -->
+          </div>
+        </div>
+
+        <!-- ➕ Create Playlist UI -->
+        <div class="pt-4 border-t border-gray-600">
+          <input
+            id="new-playlist-name"
+            type="text"
+            placeholder="New Playlist Name"
+            class="w-full px-3 py-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none text-sm mb-2"
+          />
+          <button
+            id="create-playlist-btn"
+            class="w-full bg-purple-600 hover:bg-purple-700 py-2 rounded-md text-white font-semibold text-sm"
+          >
+            Create Playlist
+          </button>
+        </div>
+      </div>
     </div>
 
     <script type="module" src="./script.js"></script>
